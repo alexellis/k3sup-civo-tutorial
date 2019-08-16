@@ -137,7 +137,7 @@ This is where k3sup comes in. k3sup can take any VM, Instance, Raspberry Pi or l
 
 The Github page describes the tool as enabling developers to get "from zero to KUBECONFIG in < 1 min".
 
-Get `k3sup`:
+Get `k3sup` by running the following on your computer:
 
 ```sh
 curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
@@ -162,12 +162,14 @@ k3sup install --ip $IP --user civo
 
 You will now see a `kubeconfig` file appear in your current directory.
 
-Try it out:
+Try connecting to the Kubernetes cluster directly from your computer:
 
 ```sh
 export KUBECONFIG=`pwd`/kubeconfig
-kubectl get node -o wide 
+kubectl get node -o wide
 ```
+
+You've now got a single-node Kubernetes cluster and can start running Pods. The documentation for Rancher states that k3s uses around 500MB of RAM for each server, so you should be able to run this in one of the cheapest Instances and make your money go even further than before.
 
 Did it work? Let us know if you ran into any issues and feel free to tweet a screenshot if you liked it to [@CivoCloud](https://twitter.com/civocloud/).
 
