@@ -13,7 +13,7 @@ Once you have Kubernetes deployed you can start to explore the [Cloud Native Lan
 
 ## The Civo part
 
-This part of the tutorial will help you create a Instance with Civo's CLI. There are several steps for the first time, you do this, but the second time you run through the instructions you can skip most of them such as installing the CLI or creating an SSH key.
+This part of the tutorial will help you create an Instance with Civo's CLI. There are several steps for the first time, you do this, but the second time you run through the instructions you can skip most of them such as installing the CLI or creating an SSH key.
 
 There are two options, you can create the Civo Instance with the CLI (recommended) or with the UI.
 
@@ -67,7 +67,7 @@ Get your API key from https://civo.com/api/
 Saved the API Key DAb75oyqVeaE7BI6Aa74FaRSP0E2tMZXkDWLC9wNQdcpGfH51r as production
 ```
 
-Now activiate the key:
+Now activate the key:
 
 ```
 # civo api production
