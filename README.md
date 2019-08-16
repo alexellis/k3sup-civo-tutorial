@@ -171,10 +171,6 @@ kubectl get node -o wide
 
 Did it work? Let us know if you ran into any issues and feel free to tweet a screenshot if you liked it to [@CivoCloud](https://twitter.com/civocloud/).
 
-## Wrapping up
-
-You now have full access to Kubernetes on your Instance. The k3sup tool will work with any VM you create whether on premises or in a cloud such as Civo. You can even [follow a micro-tutorial on the GitHub repository for your Raspberry Pi](https://github.com/alexellis/k3sup).
-
 ### Security & firewalls (recommended)
 
 Now that you've created your single-node cluster and have access to Kubernetes, it's time to tighten up the security.
@@ -188,6 +184,10 @@ Now that you've created your single-node cluster and have access to Kubernetes, 
   - `6443` (Kubernetes API)
   
   Now go into your Civo dashboard and select the firewall for your Instance
+
+## Wrapping up
+
+You now have full access to Kubernetes on your Instance. The k3sup tool will work with any VM you create whether on premises or in a cloud such as Civo. You can even [follow a micro-tutorial on the GitHub repository for your Raspberry Pi](https://github.com/alexellis/k3sup).
 
 ### Keep on learning
 
