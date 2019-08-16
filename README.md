@@ -149,14 +149,13 @@ Let's see if that claim is true.
 Get your IP for the instance you just created
 
 ```sh
-export IP=$(civo instance ip ${HOST})
+export IP=$(civo instance public_ip -q ${HOST})
 echo "The IP is: ${IP}"
 ```
 
 Now run the tool and start your timer:
 
 ```sh
-export IP=192.168.0.1
 k3sup install --ip $IP --user civo
 ```
 
