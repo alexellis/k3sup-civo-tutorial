@@ -61,7 +61,7 @@ Whenever you create a new Instance, you should click "SSH key" and then the name
 
 Get your API key from https://civo.com/api/
 
-```
+```sh
 # export KEY="DAb75oyqVeaE7BI6Aa74FaRSP0E2tMZXkDWLC9wNQdcpGfH51r"
 # civo apikey add production $KEY
 Saved the API Key DAb75oyqVeaE7BI6Aa74FaRSP0E2tMZXkDWLC9wNQdcpGfH51r as production
@@ -69,8 +69,8 @@ Saved the API Key DAb75oyqVeaE7BI6Aa74FaRSP0E2tMZXkDWLC9wNQdcpGfH51r as producti
 
 Now activate the key:
 
-```
-# civo api production
+```sh
+# civo api current production
 The current API Key is now production
 ```
 
@@ -78,8 +78,13 @@ The current API Key is now production
 
 You should only have one SSH key at this stage, but you may have more. Let's find it so that Civo can add it to our Instance automatically and allow us to log in without any password when using k3sup.
 
-```
-civo ssh-key ls
+```sh
+civo ssh ls
+
++--------------------------------------+-----------------------+----------------------------------------------------+
+| ID                                   | Name                  | Fingerprint                                        |
++--------------------------------------+-----------------------+----------------------------------------------------+
+
 ```
 
 ### Create a Instance using the CLI
@@ -91,7 +96,9 @@ civo template list |grep "Ubuntu 18"
 | 811a8dfb-8202-49ad-b1ef-1e6320b20497 | Ubuntu 18.04         |
 ```
 
-Now let's choose our own hostname and provision the Instance:
+We are looking for "18.04"
+
+Now let's choose our own hostname for the server and provision the Instance:
 
 ```
 # We can set our own hostname
@@ -104,9 +111,10 @@ export TEMPLATE="811a8dfb-8202-49ad-b1ef-1e6320b20497"
 export SSH_KEY_ID="123"
 
 # civo instance create \
-  ${HOST} \
+  --name ${HOST} \
 	--ssh-key ${SSH_KEY_ID} \
-  --template=${TEMPLATE}
+  --template=${TEMPLATE} \
+  --wait
 
 Created instance k3sup-1
 ```
@@ -140,11 +148,15 @@ The Github page describes the tool as enabling developers to get "from zero to K
 Get `k3sup` by running the following on your computer:
 
 ```sh
-curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
+curl -sLSf https://get.k3sup.dev | sh
 sudo install k3sup /usr/local/bin/
 ```
 
-Let's see if that claim is true.
+Check it worked:
+
+```sh
+k3sup version
+```
 
 Get your IP for the instance you just created
 
@@ -153,13 +165,18 @@ export IP=$(civo instance public_ip -q ${HOST})
 echo "The IP is: ${IP}"
 ```
 
-Now run the tool and start your timer:
+Now run the tool and start your timers:
 
 ```sh
 k3sup install --ip $IP --user civo
 ```
 
 You will now see a `kubeconfig` file appear in your current directory.
+
+```
+$ ls
+kubeconfig
+```
 
 Try connecting to the Kubernetes cluster directly from your computer:
 
@@ -171,6 +188,76 @@ kubectl get node -o wide
 You've now got a single-node Kubernetes cluster and can start running Pods. The documentation for Rancher states that k3s uses around 500MB of RAM for each server, so you should be able to run this in one of the cheapest Instances and make your money go even further than before.
 
 Did it work? Let us know if you ran into any issues and feel free to tweet a screenshot if you liked it to [@CivoCloud](https://twitter.com/civocloud/).
+
+### Add additional hosts (optional)
+
+If you'd like to add some additional capacity to your cluster, you can add more Instances just like we did in the previous step and then run the `k3sup join` command.
+
+> k3s will only use 75MB of RAM on each additional agent, which means you may even be able to use the smallest Instance types to save on costs. 
+
+Let's use bash to automate adding in an additional 3 nodes.
+
+We'll use a bash `for` loop which will run with the number `2`, `3` and `4`.
+
+Save the following file as `add-agents.sh`:
+
+```sh
+#!/bin/bash
+
+export USER="civo"
+export HOST="k3sup-1"
+# Taken from the earlier step
+export SSH_KEY_ID="123"
+
+export SERVER_IP=$(civo instance public_ip -q ${HOST})
+echo "The IP of the server is: ${SERVER_IP}"
+
+echo "Adding nodes 2, 3, and 4"
+
+for i in {2..4};
+do 
+  export HOST="k3sup-agent-$i"
+
+  # Taken from the earlier step
+  export TEMPLATE="811a8dfb-8202-49ad-b1ef-1e6320b20497"
+
+  civo instance create \
+    --name ${HOST} \
+    --ssh-key ${SSH_KEY_ID} \
+    --template=${TEMPLATE} \
+    --wait
+done
+
+
+echo Adding each new host into the cluster
+
+for i in {2..4};
+do 
+  export HOST="k3sup-agent-$i"
+  export IP=$(civo instance public_ip -q ${HOST})
+
+  k3sup join --server-ip=${SERVER_IP} --ip=${IP} --user=${USER}
+done
+```
+
+You may need to edit the lines for:
+
+* `SSH_KEY_ID`
+* `USER`
+* `HOST`
+
+Then execute it:
+
+```sh
+chmod +x add-agents.sh
+./add-agents.sh
+```
+
+Now check that each node has come up and is listed as `Ready`:
+
+```sh
+kubectl get node -o wide
+```
 
 ### Security & firewalls (recommended)
 
