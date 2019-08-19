@@ -187,6 +187,15 @@ kubectl get node -o wide
 
 You've now got a single-node Kubernetes cluster and can start running Pods. The documentation for Rancher states that k3s uses around 500MB of RAM for each server, so you should be able to run this in one of the cheapest Instances and make your money go even further than before.
 
+If you ever lose your kubeconfig, you can get it back at any time with this command:
+
+```sh
+export HOST="k3sup-1"
+export SERVER_IP=$(civo instance public_ip -q ${HOST})
+
+k3sup install --ip $SERVER_IP --user civo --skip-install
+```
+
 Did it work? Let us know if you ran into any issues and feel free to tweet a screenshot if you liked it to [@CivoCloud](https://twitter.com/civocloud/).
 
 ### Add additional hosts (optional)
@@ -227,7 +236,6 @@ do
     --template=${TEMPLATE} \
     --wait
 done
-
 
 echo Adding each new host into the cluster
 
@@ -276,6 +284,22 @@ Now that you've created your single-node cluster and have access to Kubernetes, 
 ## Wrapping up
 
 You now have full access to Kubernetes on your Instance. The k3sup tool will work with any VM you create whether on premises or in a cloud such as Civo. You can even [follow a micro-tutorial on the GitHub repository for your Raspberry Pi](https://github.com/alexellis/k3sup).
+
+### Tear-down
+
+If you'd like to tear things down run the following:
+
+```sh
+# Delete the server
+civo instance delete k3sup-1
+
+# If you created agents / additional nodes, then run:
+civo instance delete k3sup-agent-2
+civo instance delete k3sup-agent-3
+civo instance delete k3sup-agent-4
+```
+
+To check everything is gone, type in: `civo instance ls`
 
 ### Keep on learning
 
